@@ -10,6 +10,8 @@ use sfml::graphics::Transformable;
 use sfml::graphics::Shape;
 use sfml::system::Vector2;
 
+const BOX_FRAME_SIZE : i32 = 2;
+
 #[derive(Debug, Deserialize)]
 struct Point {
 	x: f32,
@@ -117,14 +119,16 @@ fn main() {
 			let sprite = texture_info.sprite.as_mut().unwrap();
 
 			for point in render_target.1 {
-				sprite.set_position((point.x, point.y));
+				let tx = point.x * texture_info.w as f32;
+				let ty = point.y * texture_info.h as f32;
+				sprite.set_position((tx, ty));
 				window.draw(sprite);
 
 				if texture_info.rigid.is_some() && texture_info.rigid.unwrap() {
-					let mut shape = RectangleShape::with_size(Vector2::new(28.0, 28.0));
-					shape.set_position(Vector2::new(point.x + 1.0, point.y + 1.0));
+					let mut shape = RectangleShape::with_size(Vector2::new((texture_info.w - BOX_FRAME_SIZE * 2) as f32, (texture_info.h - BOX_FRAME_SIZE * 2) as f32));
+					shape.set_position(Vector2::new(tx + BOX_FRAME_SIZE as f32 / 2.0, ty + BOX_FRAME_SIZE as f32 / 2.0));
 					shape.set_outline_color(Color::WHITE);
-					shape.set_outline_thickness(2.0);
+					shape.set_outline_thickness(BOX_FRAME_SIZE as f32);
 					shape.set_fill_color(Color::TRANSPARENT);
 					window.draw(&shape);
 				}
