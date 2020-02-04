@@ -20,9 +20,10 @@ struct Point {
 struct TextureInfo<'a> {
 	path: String,
 	t: i32,
-	b: i32,
 	l: i32,
-	r: i32,
+	w: i32,
+	h: i32,
+	
 	rigid: Option<bool>,
 
 	// Loaded sprite
@@ -88,7 +89,7 @@ fn main() {
 		sprite.set_texture(&texture.1, true);
 
 		let texture_info = &mut level.textures.get_mut(texture.0).unwrap();
-		sprite.set_texture_rect(&IntRect::new(texture_info.l, texture_info.t, texture_info.r, texture_info.b));
+		sprite.set_texture_rect(&IntRect::new(texture_info.l, texture_info.t, texture_info.w, texture_info.h));
 
 		texture_info.texture = Some(texture.1.clone());
 		texture_info.sprite = Some(sprite);

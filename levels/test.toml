@@ -1,8 +1,8 @@
 name = "Test Level"
 
 [textures]
-wall = { path = "assets/rpg.png", t = 448, b = 32, l = 96, r = 32, rigid = true }
-watter = { path = "assets/rpg.png", t = 704, b = 32, l = 1188, r = 32 }
+wall = { path = "assets/rpg.png", t = 448, l = 96, w = 32, h = 32, rigid = true }
+watter = { path = "assets/rpg.png", t = 704, l = 1188, w = 32, h = 32 }
 
 # 
 [render_targets]
