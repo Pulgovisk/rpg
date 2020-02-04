@@ -3,10 +3,12 @@ use serde_derive::Deserialize;
 use std::collections::{HashMap};
 
 // SFML stuff
-use sfml::graphics::{Color, RenderTarget, RenderWindow, Sprite, IntRect, Texture};
-use sfml::window::{Event, Key, Style};
+use sfml::graphics::{Color, RenderTarget, RenderWindow, RectangleShape, Sprite, IntRect, Texture};
+use sfml::window::{Event, Style};
 use sfml::system::SfBox;
 use sfml::graphics::Transformable;
+use sfml::graphics::Shape;
+use sfml::system::Vector2;
 
 #[derive(Debug, Deserialize)]
 struct Point {
@@ -15,18 +17,27 @@ struct Point {
 }
 
 #[derive(Debug, Deserialize)]
-struct TextureInfo {
+struct TextureInfo<'a> {
 	path: String,
 	t: i32,
 	b: i32,
 	l: i32,
-	r: i32
+	r: i32,
+	rigid: Option<bool>,
+
+	// Loaded sprite
+	#[serde(skip_deserializing)]
+	sprite: Option<Sprite<'a>>,
+
+	// Loaded texture
+	#[serde(skip_deserializing)]
+	texture: Option<SfBox<Texture>>
 }
 
 #[derive(Debug, Deserialize)]
-struct LevelInfo {
+struct LevelInfo<'a> {
 	name: String,
-	textures: HashMap<String, TextureInfo>,
+	textures: HashMap<String, TextureInfo<'a>>,
 	render_targets: HashMap<String, Vec<Point>>
 }
 
@@ -45,16 +56,14 @@ fn main() {
 		}
 	};
 
-	let level: LevelInfo = match toml::from_str(&file_content) {
+	let mut texture_vec : HashMap<String, SfBox<Texture>> = HashMap::new();
+	let mut level: LevelInfo = match toml::from_str(&file_content) {
 		Ok(l) => l,
 		Err(e) => {
 			println!("Failed to parse {}. {}", &args[1], e);
 			return;
 		}
 	};
-
-	let mut texture_vec : HashMap<String, SfBox<Texture>> = HashMap::new();
-	let mut sprites_vec : HashMap<String, Sprite> = HashMap::new();
 	
 	for value in &level.render_targets {
 		if !&level.textures.contains_key(value.0) {
@@ -62,11 +71,9 @@ fn main() {
 			return;
 		}
 
-		let texture_path = &level.textures.get(value.0).unwrap().path;
+		let texture_info = &mut level.textures.get(value.0).unwrap();
 		if !texture_vec.contains_key(value.0) {
-			// Already loaded
-		
-			let loaded_texture = Texture::from_file(texture_path);
+			let loaded_texture = Texture::from_file(&texture_info.path);
 			if loaded_texture.is_none() {
 				//println!("Failed to open texture {}", &value.tid); SFML print for us
 				return;
@@ -80,9 +87,11 @@ fn main() {
 		let mut sprite = Sprite::new();
 		sprite.set_texture(&texture.1, true);
 
-		let texture_info = &level.textures.get(texture.0).unwrap();
+		let texture_info = &mut level.textures.get_mut(texture.0).unwrap();
 		sprite.set_texture_rect(&IntRect::new(texture_info.l, texture_info.t, texture_info.r, texture_info.b));
-		sprites_vec.insert((&texture.0).to_string(), sprite);
+
+		texture_info.texture = Some(texture.1.clone());
+		texture_info.sprite = Some(sprite);
 	}
 
 	let mut window = RenderWindow::new(
@@ -103,15 +112,24 @@ fn main() {
 		window.clear(Color::BLACK);
 
 		for render_target in &level.render_targets {
-			let sprite = sprites_vec.get_mut(render_target.0).unwrap();
+			let texture_info = level.textures.get_mut(render_target.0).unwrap();
+			let sprite = texture_info.sprite.as_mut().unwrap();
 
 			for point in render_target.1 {
 				sprite.set_position((point.x, point.y));
 				window.draw(sprite);
+
+				if texture_info.rigid.is_some() && texture_info.rigid.unwrap() {
+					let mut shape = RectangleShape::with_size(Vector2::new(28.0, 28.0));
+					shape.set_position(Vector2::new(point.x + 1.0, point.y + 1.0));
+					shape.set_outline_color(Color::WHITE);
+					shape.set_outline_thickness(2.0);
+					shape.set_fill_color(Color::TRANSPARENT);
+					window.draw(&shape);
+				}
 			}
 		}
 		
 		window.display();
 	}
 }
-

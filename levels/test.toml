@@ -1,9 +1,10 @@
 name = "Test Level"
 
 [textures]
-wall = { path = "assets/floor.png", t = 0, b = 32, l = 32, r = 32 }
-floor = { path = "assets/floor.png", t = 32, b = 32, l = 0, r = 32 }
+wall = { path = "assets/rpg.png", t = 448, b = 32, l = 96, r = 32, rigid = true }
+watter = { path = "assets/rpg.png", t = 704, b = 32, l = 1188, r = 32 }
 
+# 
 [render_targets]
 wall = [
 	[0, 0],
@@ -12,7 +13,7 @@ wall = [
 	[0, 64],
 	[64, 0]
 ]
-floor = [ 
+watter = [ 
 	[32, 32],
 	[32, 64],
 	[64, 32],
