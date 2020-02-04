@@ -98,7 +98,7 @@ fn main() {
 	}
 
 	let mut window = RenderWindow::new(
-		(800, 600),
+		(120, 120),
 		"RPG Game",
 		Style::CLOSE | Style::RESIZE,
 		&Default::default()
@@ -126,7 +126,7 @@ fn main() {
 
 				if texture_info.rigid.is_some() && texture_info.rigid.unwrap() {
 					let mut shape = RectangleShape::with_size(Vector2::new((texture_info.w - BOX_FRAME_SIZE * 2) as f32, (texture_info.h - BOX_FRAME_SIZE * 2) as f32));
-					shape.set_position(Vector2::new(tx + BOX_FRAME_SIZE as f32 / 2.0, ty + BOX_FRAME_SIZE as f32 / 2.0));
+					shape.set_position(Vector2::new(tx + BOX_FRAME_SIZE as f32, ty + BOX_FRAME_SIZE as f32));
 					shape.set_outline_color(Color::WHITE);
 					shape.set_outline_thickness(BOX_FRAME_SIZE as f32);
 					shape.set_fill_color(Color::TRANSPARENT);
